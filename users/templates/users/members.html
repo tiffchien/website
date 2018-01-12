@@ -1,47 +1,22 @@
 {% extends "website/header_footer.html" %}
 {% load staticfiles %}
 {% block stylesheets %}
-	<link rel="stylesheet" href="{% static "website/css/reset.css" %}" type="text/css" media="screen" />
-	<link rel="stylesheet" href="{% static "website/css/full_style.css" %}" type="text/css" media="screen" />
+	<!-- <link rel="stylesheet" href="{% static "website/css/reset.css" %}" type="text/css" media="screen" /> -->
+	<!-- <link rel="stylesheet" href="{% static "website/css/full_style.css" %}" type="text/css" media="screen" /> -->
 	<link rel="stylesheet" href="{% static "website/css/main_style.css" %}" type="text/css" media="screen" />
+	<!-- 
     <link rel="stylesheet" href="{% static "website/css/header_style.css" %}" type="text/css" media="screen" />
-    <link rel="stylesheet" href="{% static "website/css/footer_style.css" %}" type="text/css" media="screen" />
+    <link rel="stylesheet" href="{% static "website/css/footer_style.css" %}" type="text/css" media="screen" /> -->
+
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="{% static "website/css/hover.css" %}" type="text/css" media="screen" />
 	<link rel="stylesheet" href="{% static "users/css/officers_members.css" %}" type="text/css" media="screen" />
-	<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
-	<link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Arimo:400,700' type='text/css'>
+	<link rel="stylesheet" href="{% static "users/css/round-about.css" %}" />
+<!-- 	<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css">
+	<link rel='stylesheet' href='http://fonts.googleapis.com/css?family=Arimo:400,700' type='text/css'> -->
+	<!-- <link rel="stylesheet" href="{% static "users/css/members.css" %}" type="text/css" media="screen" /> -->
 {% endblock %}
-{% block javascript %}
-<!-- Set pre-existing filters for <select>s for graduation year and member since. Pre-existing filter for name's <input> is done directly in the HTML -->
-	<script src="{% static "website/js/jquery_1.11.0.min.js" %}"></script>
-	<script>
-		var Spring = "Spring";
-		var Fall = "Fall";
-		$(function() {
-			{% if grad_yr_filter %}
-			var gradyear_options = $("[name=gradyear]").children("option");
-			for (var i = 0; i < gradyear_options.length; i++) {
-				var gradyr_option = $(gradyear_options[i]);
-				if (gradyr_option.text() == {{ grad_yr_filter }}) {
-					gradyr_option.attr("selected", "selected");
-					break;
-				}
-			}
-			{% endif %}
-			{% if member_since_filter_sem %}
-				var membersince_options = $("[name=membersince]").children("option");
-				for (var j = 0; j < membersince_options.length; j++) {
-					var membersince_option = $(membersince_options[j]);
-					if (membersince_option.text() == {{ member_since_filter_sem }} + " " + {{ member_since_filter_year}}) {
-						membersince_option.attr("selected", "selected");
-						break;
-					}
-				}
-			{% endif %}
-		});
-	</script>
-{% endblock %}
+
 {% block content %}
 <div class="content-container">
 	<div class="content-sidebar">
@@ -61,6 +36,15 @@
 					<option>2018</option>
 				</select>
 				<span style="margin-left: 5px">
+					Type <select class="filter" name="type">
+					<option></option>
+					<!-- <option>Candidate</option> -->
+					<option>Member</option>
+					<option>Officer</option>
+					<!-- <option>Alumnus</option> -->
+				</select>
+				</span>
+				<span style="margin-left: 5px">
 				Member Since <select class="filter" name="membersince">
 					<option></option>
 					<option>Fall 2012</option>
@@ -74,7 +58,7 @@
 				</span>
 				<span style="margin-left: 5px">
 					<button id="filter" type="submit">Filter</button>
-					<a href="{% url 'users.views.members' %}"><button type="button">Clear Filters</button></a>
+					<!-- <a href="{% url 'users.views.members' %}"><button type="button">Clear Filters</button></a> -->
 				</span>
 			</p>
 		</form>
@@ -88,16 +72,16 @@
 			{% for user in users %}
 				<div class="officer-member grow">
 					{% if user.picture %}
-						<img class="officer-member-picture" src="/media/{{user.picture}}">
+						<img class="officer-member-picture" src="{% static "website/images/samoyed.jpg" %}">
 					{% else %}
-						{% if not user.picture %}
-						<img class="officer-member-picture" src="/media/profile_images/spock.jpg">
-						{% endif %}
+						<img class="officer-member-picture" src="{% static "website/images/samoyed.jpg" %}">
 					{% endif %}
 					<div class="officer-member-info">
-						<span class="name">{{ user }}</span>
-						<span class="year">Computer Science, {{ user.get_grad_year_display }}</span>
-                        <span class="joined">Member since {{ user.get_year_joined_display }}</span>
+						<span class="name">{{ user }}, {{ user.get_user_type_display }}</span>
+                        <!-- <span class="type"> {{ user.get_user_type_display }}</span> -->
+                        <span class="committee">{{ user.get_committee_display }}</span>
+						<span class="year">Graduating in {{ user.get_grad_year_display }}</span>
+                        <span class="joined">Joined in {{ user.get_year_joined_display }}</span>
 						{% if logged_in %}
 							<span class="email">{{ user.user.email }}</span>
 						{% endif %}

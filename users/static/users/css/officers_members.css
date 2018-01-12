@@ -3,12 +3,22 @@ h1 {
     font-weight: bold;
 }
 
+.name {
+	color: green;
+}
+
 #officer-member-container {
 	margin: 0 auto;
 	min-height: 300px;
 	float: left;
 	width:800px;
 }
+
+/*@media (max-width: 800px) {
+    #officer-member-container {
+        width: 50%;
+    }
+}*/
 
 #main-content-wrapper .officer-member {
 	width: 180px;

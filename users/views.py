@@ -38,7 +38,9 @@ def officers(request):
 
 def members(request):
     template = loader.get_template('users/members.html')
-    members = UserProfile.objects.filter(user_type=2, approved=True)
+    # members = UserProfile.objects.filter(user_type=2, approved=True)
+    members = list(UserProfile.objects.filter(user_type = 2))
+    members.extend(UserProfile.objects.filter(user_type = 3))
 
     for member in members:
         setattr(member, 'position', 'Member')
@@ -60,10 +62,14 @@ def members(request):
 # years of membership to make searching/browsing easier for current members and candidates who are perhaps
 # trying to get a feel for the number of their peers involved in UPE.
 def members_filter(request):
+    print('HELLO WORLD')
+
     template = loader.get_template('users/members.html')
     name_filter = request.POST['membername'];
     grad_yr_filter = request.POST['gradyear']
     member_since_filter = request.POST['membersince']
+    type_filter = request.POST['type']
+    print('type_filter', type_filter)
     if len(member_since_filter):
         member_since_split = member_since_filter.split(' ')
         # split the semester string from the year number because of how Django template variables work
@@ -72,30 +78,52 @@ def members_filter(request):
     else:
         member_since_filter_sem = ''
         member_since_filter_year = ''
-    context = RequestContext(request,
-        {'users': [],
-        'title': 'Members',
-        'logged_in': request.user.is_authenticated(),
-        'name_filter': name_filter,
-        'grad_yr_filter': grad_yr_filter,
-        'member_since_filter_sem': member_since_filter_sem,
-        'member_since_filter_year': member_since_filter_year,
-        'none_found': True
-        })
-    members = UserProfile.objects.filter(user_type=2, approved=True)
+    # members = UserProfile.objects.filter(user_type=2, approved=True)
+    userDic = {}
+    userDic["Candidate"] = 1
+    userDic["Member"] = 2
+    userDic["Officer"] = 3
+    userDic["Alumnus"] = 4
+    if type_filter != "":
+        members = UserProfile.objects.filter(user_type = userDic[type_filter])
+    else:
+        members = list(UserProfile.objects.filter(user_type = userDic['Member']))
+        members.extend(UserProfile.objects.filter(user_type = userDic['Officer']))
+
+
+    print('members_filter members', members)
     filter_members = []
+    none_found = True
     for member in members:
+        print('found member')
         if len(name_filter) and name_filter not in str(member):
             continue
         if len(grad_yr_filter) and member.grad_year != grad_yr_filter[2:]:
             continue
         if len(member_since_filter) and member.year_joined != member_since_filter[0] + member_since_filter[-2:]:
             continue
-        context['none_found'] = False
+        # if len(type_filter) and member.user_type != type_filter:
+        #     continue
+        none_found = False
         filter_members.append(member);
         setattr(member, 'position', 'Member')
         setattr(member, 'photo', member.picture)
-    context['users'] = filter_members
+
+    context = RequestContext(request,
+        {'users': filter_members,
+        'title': 'Members',
+        'logged_in': request.user.is_authenticated(),
+        'name_filter': name_filter,
+        'grad_yr_filter': grad_yr_filter,
+        'member_since_filter_sem': member_since_filter_sem,
+        'member_since_filter_year': member_since_filter_year,
+        'none_found': none_found
+        })
+
+
+    print('filter_members', filter_members)
+    # context['users'] = filter_members
+    print(context)
     return HttpResponse(template.render(context))
 
 def interest(request):
